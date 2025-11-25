@@ -10,8 +10,8 @@ const initKeycloak = async() => {
         await keycloak.init({
             onLoad: 'check-sso', //로그인을 백그라운드에서 감지 후 세션 연결, login-required로 하면 로그인 페이지로 강제 리다이렉트
             checkLoginIframe: true, // iframe 단위로 로그인 검사
-            checkLoginIframeInterval: 10,
-            // redirectUri: window.location.origin + '/dashboard',      // todo 로그인 페이지로 리다리엑트 지정 필요
+            checkLoginIframeInterval: 60,
+            redirectUri: window.location.origin + '/', // intro 페이지로 리다이렉트
             pkceMethod: "S256"// PKCE 방식 지정 -> 인증 코드 중간에 가로채는 위협 방지
 
         })

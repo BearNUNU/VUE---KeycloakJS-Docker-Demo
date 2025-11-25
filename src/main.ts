@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import keycloak from './keycloak'
+import router from './router'
 
 
 const initKeycloak = async() => {
@@ -21,5 +22,5 @@ const initKeycloak = async() => {
 
 //lazy init 방식도 있지만 초기화 후 app 마운트 하는 방식 사용
 initKeycloak().finally(()=>{
-createApp(App).mount('#app')    
+createApp(App).use(router).mount('#app'); 
 })

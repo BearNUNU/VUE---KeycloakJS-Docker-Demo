@@ -3,11 +3,12 @@ import './style.css'
 import App from './App.vue'
 import keycloak from './keycloak'
 import router from './router'
+import { startTokenAutoRefresh } from './components/utils/tokenRefresher';
 
 
 const initKeycloak = async() => {
     try {
-        await keycloak.init({
+        const authenticated = await keycloak.init({
             onLoad: 'check-sso', //로그인을 백그라운드에서 감지 후 세션 연결, login-required로 하면 로그인 페이지로 강제 리다이렉트
             checkLoginIframe: true, // iframe 단위로 로그인 검사
             checkLoginIframeInterval: 60,
@@ -15,6 +16,9 @@ const initKeycloak = async() => {
             pkceMethod: "S256"// PKCE 방식 지정 -> 인증 코드 중간에 가로채는 위협 방지
 
         })
+        if(authenticated){
+            startTokenAutoRefresh(); //토큰 자동 리프레시 추가
+        }
     } catch (error) {
         console.log(error)
     }

@@ -9,7 +9,15 @@ services:
     
     # 컨테이너가 시작될 때 실행할 명령어를 지정합니다.
     # 'start-dev'는 개발 용도로 Keycloak을 시작하는 명령어입니다.
-    command: start-dev
+    # command에 넣은 --spi-* 옵션은 개발용: 정적 파일 캐시 무효화 → 테마 변경 즉시 반영. 운영에서는 위 spi-theme-*를 제거
+
+    command:
+      - start
+      - --http-enabled=true
+      - --hostname-strict=false
+      - --spi-theme-static-max-age=-1
+      - --spi-theme-cache-themes=false
+      - --spi-theme-cache-templates=false
 
     # 컨테이너 내부에서 사용할 환경 변수를 설정합니다.
     environment:
@@ -25,6 +33,6 @@ services:
     ports:
       - "8080:8080"
     
-    # keycloak 페이지들 테마 수정을 위한 폴더 추가
+    # keycloak 페이지들 테마 수정을 위한 폴더 추가 docker-compose down 다운 후 docker-compose up -d 다시 올려야함
     volumes:
-      - ./keycloak-themes:/opt/keycloak/themes
+     - ./keycloak-themes:/opt/keycloak/themes

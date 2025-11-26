@@ -24,3 +24,7 @@ services:
     # 이를 통해 웹 브라우저에서 http://localhost:8080 으로 Keycloak에 접근할 수 있습니다.
     ports:
       - "8080:8080"
+    
+    # keycloak 페이지들 테마 수정을 위한 폴더 추가
+    volumes:
+      - ./keycloak-themes:/opt/keycloak/themes

@@ -14,6 +14,7 @@
     <div class="flex items-center justify-center min-h-screen py-8">
         <div class="card w-full max-w-sm shadow-2xl bg-base-100">
             <form class="card-body" id="kc-register-form" action="${url.registrationAction}" method="post">
+                <input type="hidden" id="tab_id" name="tab_id" value="${tabId!}" />
                 <h1 class="card-title text-2xl justify-center">회원가입</h1>
 
                 <#-- Display messages -->

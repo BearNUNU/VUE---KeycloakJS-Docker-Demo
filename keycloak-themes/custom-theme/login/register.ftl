@@ -3,10 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>회원가입</title>
-    
-    <!-- daisyUI and Tailwind CSS from CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
 
     <#if properties.styles?has_content>
         <#list properties.styles?split(' ') as style>

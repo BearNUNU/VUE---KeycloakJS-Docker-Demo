@@ -3,10 +3,6 @@
 <head>
     <meta charset="utf-8">
     <title>Login</title>
-    
-    <!-- daisyUI and Tailwind CSS from CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.2/dist/full.css" rel="stylesheet" type="text/css" />
-    <script src="https://cdn.tailwindcss.com"></script>
 
     <#-- This will load the local styles.css if you need custom overrides -->
     <#if properties.styles?has_content>

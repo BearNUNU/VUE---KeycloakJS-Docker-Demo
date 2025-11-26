@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Keycloak theme build artifacts
+/keycloak-themes/custom-theme/node_modules
+/keycloak-themes/custom-theme/login/resources/css/styles.css

@@ -24,7 +24,7 @@
                 </p>
                 
                 <div class="form-control mt-6">
-                    <a href="${url.loginUrl}" class="btn btn-primary">로그인 페이지로 돌아가기</a>
+      <a href="${url.loginRestartFlowUrl}" class="btn btn-primary">로그인 페이지로</a>
                 </div>
             </div>
         </div>

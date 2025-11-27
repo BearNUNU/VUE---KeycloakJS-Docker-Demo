@@ -146,3 +146,74 @@ Google 계정을 사용한 "기존 회원 로그인" 및 "신규 회원 자동 �
 3.  **Provider에 신규 흐름 적용**
     - 다시 **Identity Providers** > **Google** 설정으로 돌아옵니다.
     - **Advanced settings** > **First Login Flow** 항목을 방금 생성한 `Google Auto Login`으로 변경하고 저장합니다.
+
+---
+
+## 🔗 6. Keycloak 메세지 한글화 & 다국어 지원화
+
+Keycloak이 제공하는 기본 메세지(예: 'Username or email')를 한글화하고, 다국어 환경을 지원하는 방법을 안내합니다.
+
+### 가. 1단계: Keycloak 서버에 한글 언어팩 활성화
+
+1.  **Keycloak 관리자 콘솔 접속**
+    - Keycloak 관리자 콘솔에 접속하여 **Realm Settings > Localization** 탭으로 이동합니다.
+
+2.  **지원 언어 추가**
+    - **Supported Locales** 목록에서 `Korean(ko)`을 찾아 추가합니다.
+
+3.  **기본 언어 설정 (선택 사항)**
+    - **Default Locale**을 `ko`로 설정하면 해당 Realm의 모든 UI가 기본적으로 한글로 표시됩니다.
+
+4.  **저장**
+    - **Save** 버튼을 클릭하여 설정을 완료합니다. 이제 Keycloak UI에서 언어 선택 메뉴가 활성화됩니다.
+
+### 나. 2단계: 커스텀 테마에 다국어 지원 설정
+
+1.  **지원 언어 등록 (`theme.properties`)**
+    - `keycloak-themes/custom-theme/login/theme.properties` 파일을 열고, `locales` 속성에 지원할 언어 목록을 추가합니다.
+    ```properties
+    parent=keycloak
+    import=common/keycloak
+    styles=css/styles.css
+    locales=ko, en
+    ```
+    > 이 설정을 통해 Keycloak은 해당 테마가 한국어(`ko`)와 영어(`en`)를 지원한다는 사실을 인지합니다.
+
+2.  **한글 메세지 파일 추가 (`messages_ko.properties`)**
+    - `keycloak-themes/custom-theme/login/messages` 디렉토리 안에 `messages_ko.properties` 파일을 생성하고, 번역할 메세지를 `키=값` 형식으로 작성합니다.
+    ```properties
+    # 로그인 페이지 제목
+    loginTitle=환영합니다!
+
+    # 사용자 이름 및 이메일 레이블
+    usernameOrEmail=아이디 또는 이메일
+
+    # 비밀번호 레이블
+    password=비밀번호
+
+    # 'Forgot Password?' 링크
+    doForgotPassword=비밀번호를 잊으셨나요?
+    ```
+    > ✨ **Tip**: Keycloak이 사용하는 전체 메세지 키 목록은 [Keycloak 공식 GitHub 리포지토리](https://github.com/keycloak/keycloak/blob/main/themes/src/main/resources/theme/base/login/messages/messages_en.properties)에서 확인할 수 있습니다.
+
+### 다. 3단계: `.ftl` 파일에서 메세지 키 사용하기
+
+FreeMarker 템플릿(`.ftl`) 파일에서 하드코딩된 텍스트 대신, 방금 정의한 메세지 키를 사용하도록 수정합니다.
+
+1.  **템플릿 파일 열기**
+    - `keycloak-themes/custom-theme/login/login.ftl` 파일을 엽니다.
+
+2.  **메세지 키로 대체**
+    - 이메일 입력 필드의 레이블을 예로 들어 보겠습니다. 기존 코드를 아래와 같이 변경합니다.
+    - **변경 전 (하드코딩된 텍스트)**
+      ```html
+      <label for="username" class="${properties.kcLabelClassName!}">Username or email</label>
+      ```
+    - **변경 후 (메세지 키 사용)**
+      ```html
+      <label for="username" class="${properties.kcLabelClassName!}">${msg('usernameOrEmail')}</label>
+      ```
+      > `msg()` 함수는 Keycloak이 현재 설정된 언어에 맞는 메세지를 자동으로 찾아 출력해주는 역할을 합니다.
+
+3.  **결과 확인**
+    - Keycloak 로그인 페이지에 다시 접속하여 언어 설정을 한국어로 변경하면, 방금 수정한 텍스트가 한글로 표시되는 것을 확인할 수 있습니다.

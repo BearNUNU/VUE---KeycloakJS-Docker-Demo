@@ -217,3 +217,61 @@ FreeMarker 템플릿(`.ftl`) 파일에서 하드코딩된 텍스트 대신, 방�
 
 3.  **결과 확인**
     - Keycloak 로그인 페이지에 다시 접속하여 언어 설정을 한국어로 변경하면, 방금 수정한 텍스트가 한글로 표시되는 것을 확인할 수 있습니다.
+
+---
+
+## 🔗 7. Keycloak 구글 로그인 심화 가이드 (Seamless & Auto-Link)
+
+이 가이드는 **[🔗 5. Google 소셜 로그인 연동](#-5-google-소셜-로그인-연동)** 설정을 마친 후, 사용자 경험을 더욱 향상시키기 위한 심화 설정입니다. "신규 회원은 즉시 가입, 기존 회원은 즉시 연동"되도록 구성하는 방법을 다룹니다.
+
+### ✅ 목표 시나리오
+*   **신규 유저**: 구글 로그인 시 "추가 정보 입력(Review Profile)" 없이 즉시 회원가입 및 로그인.
+*   **기존 유저**: 같은 이메일을 가진 기존 계정이 있다면, "계정 연결하시겠습니까?" 질문 없이 즉시 통합 및 로그인.
+
+### 1. Keycloak Realm 필수 설정 (중요 ⭐)
+구글에서 받은 이메일로 즉시 유저를 생성하기 위해 반드시 필요한 설정입니다.
+
+1.  Keycloak 관리자 콘솔 > 왼쪽 메뉴 **Realm Settings** (영역 설정).
+2.  **Login** 탭 선택.
+3.  **Email as username** (이메일을 사용자 이름으로 사용): **ON** 설정.
+    > 이유: 이 설정이 꺼져 있으면 "Username 누락"으로 인해 `userId="null"` 에러가 발생합니다.
+4.  **Save** 클릭.
+
+### 2. Authentication Flow (인증 흐름) 구성
+기본 흐름을 수정하여 사용자 개입 단계를 제거합니다.
+
+1.  왼쪽 메뉴 **Authentication > Flows** 탭.
+2.  `first broker login`을 찾아 우측 **...** 버튼 > **Duplicate** > 이름: `Google Auto Login`.
+3.  생성된 흐름을 클릭하여 내부 구성을 아래 표와 정확히 일치시킵니다.
+    *   기존에 있던 `Review Profile`, `Confirm Link`... 등은 삭제하거나 비활성화합니다.
+    *   `Automatically Link Broker`는 **Add execution**으로 추가해야 합니다.
+
+| 순서 | Execution 이름 | Requirement | 설명 |
+| :--- | :--- | :--- | :--- |
+| 1 | Create User If Unique | ALTERNATIVE | 유저가 없으면 생성 시도 |
+| 2 | Automatically Link Broker | ALTERNATIVE | 유저가 있으면 자동 연결 |
+
+> **주의사항**:
+> *   반드시 둘 다 **ALTERNATIVE**여야 합니다. (REQUIRED가 있으면 실패 시 다음 단계로 안 넘어감)
+> *   `User Creation or Linking` 같은 상위 흐름이 있다면 그 안에서 이 순서를 맞춰야 합니다.
+
+### 3. Identity Provider 설정 업데이트
+기존에 생성한 Google Provider 설정을 다음과 같이 업데이트합니다.
+
+1.  왼쪽 메뉴 **Identity Providers > Google**.
+2.  **Advanced settings** (고급 설정)을 열고 **First Login Flow**를 방금 만든 `Google Auto Login`으로 변경합니다.
+3.  **Mappers 탭 점검 (에러 방지)**:
+    *   **Mappers** 탭으로 이동하여 `email` 관련 매퍼가 수동으로 추가되어 있다면 **삭제**하세요.
+    *   이유: 잘못 구성된 수동 매퍼는 `JSON field path` 에러를 유발합니다. 구글은 설정 없이도 이메일을 자동으로 가져옵니다.
+4.  **Save** 클릭.
+
+### 4. 트러블슈팅 (자주 겪는 에러)
+*   **Q. 400 Bad Request 또는 `invalid_user_credentials` 에러가 떠요.**
+    *   **원인**: Keycloak이 유저를 생성하려는데 Username이 없어서 실패한 경우입니다.
+    *   **해결**: **1번 항목(Realm Settings)**에서 `Email as username`이 켜져 있는지 확인하세요.
+*   **Q. `REQUIRED and ALTERNATIVE elements at same level` 에러가 떠요.**
+    *   **원인**: Flow 설정에서 하나는 `REQUIRED`, 하나는 `ALTERNATIVE`로 섞여 있어서 로직이 꼬인 겁니다.
+    *   **해결**: **2번 항목(Flow 구성)**표를 보고 둘 다 **ALTERNATIVE**로 맞추세요.
+*   **Q. `JSON field path is not configured for mapper email` 에러가 떠요.**
+    *   **원인**: Identity Provider 설정의 Mappers 탭에 설정값이 비어있는 잘못된 매퍼가 있습니다.
+    *   **해결**: **3번 항목(Mappers 점검)**을 참고하여 해당 매퍼를 삭제하세요.

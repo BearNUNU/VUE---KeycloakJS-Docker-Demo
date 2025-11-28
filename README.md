@@ -39,3 +39,4 @@
 └── README.md
 ```
 - [**프로젝트 상세 가이드**](./docs/setup-guide.md)
+- [**개발 진행 이슈 해결 노트**](./docs/troubleshooting.md)

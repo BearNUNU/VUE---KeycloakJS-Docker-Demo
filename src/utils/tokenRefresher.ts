@@ -21,3 +21,7 @@ export const stopTokenAutoRefresh = () => {
     intervalId = null;
   }
 };
+
+
+
+// keycloakJS는 내부에서 자동으로 Refresh Token과 Access Token을 관리하기 때문에 별도로 위와 같이 토큰 갱신을 시킬 필요가 없다.

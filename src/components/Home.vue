@@ -13,14 +13,22 @@
 <script setup lang="ts">
 import keycloak from '../keycloak';
 
+
 const logout = () => keycloak.logout();
 const deleteUser = async () => {
-  if (!confirm('회원탈퇴 하겠습니까')) {
+  const userId = keycloak.tokenParsed?.sub;
+
+  if (!userId) {
+    alert("User ID not found.");
+    return;
+  }
+
+  if (!confirm('회원탈퇴 하겠습니까?')) {
     return;
   }
 
   try {
-    const response = await fetch('/api/users/delete', {
+    const response = await fetch(`/api/users/delete/${userId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${keycloak.token}`

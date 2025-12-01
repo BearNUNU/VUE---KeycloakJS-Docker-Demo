@@ -3,7 +3,7 @@ import './style.css'
 import App from './App.vue'
 import keycloak from './keycloak'
 import router from './router'
-import { startTokenAutoRefresh } from './components/utils/tokenRefresher';
+import { startTokenAutoRefresh } from './utils/tokenRefresher';
 
 
 const initKeycloak = async() => {

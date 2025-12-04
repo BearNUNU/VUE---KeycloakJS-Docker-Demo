@@ -336,3 +336,44 @@ Keycloak이 메일을 보낼 수 있도록 우체국(SMTP)을 연결해야 합�
 *   **Q. `JSON field path is not configured for mapper email` 에러가 떠요.**
     *   **원인**: Identity Provider 설정의 Mappers 탭에 설정값이 비어있는 잘못된 매퍼가 있습니다.
     *   **해결**: **3번 항목(Mappers 점검)**을 참고하여 해당 매퍼를 삭제하세요.
+---
+
+## 💾 9. Keycloak Realm 설정 백업 및 관리 (Export/Import)
+
+Keycloak에서 설정한 Realm 정보(Client, Role, User 등)는 언제든지 백업하고 다른 환경에서 복원할 수 있습니다. 설정을 JSON 파일 형태로 내보내(Export) Git으로 버전을 관리하면 팀원들과 설정을 공유하거나, 실수로 설정을 변경했을 때 쉽게 복구할 수 있습니다.
+
+### 가. Realm 설정 내보내기 (Export)
+
+1.  **Keycloak 관리자 콘솔**에 접속하여 백업하려는 Realm을 선택합니다.
+2.  왼쪽 메뉴 하단의 **Realm Settings**로 이동합니다.
+3.  화면 우측 상단에 있는 **Action** 드롭다운 메뉴를 클릭하고 **Partial export**를 선택합니다.
+4.  내보낼 항목을 선택합니다. 일반적으로 아래 두 항목을 `ON`으로 설정하면 대부분의 Realm 설정을 포함할 수 있습니다.
+    *   **Export groups and roles**: 그룹 및 역할 포함 여부
+    *   **Export clients**: 클라이언트 포함 여부
+5.  **Export** 버튼을 클릭하면 `realm-export.json` 형태의 파일이 다운로드됩니다.
+
+### 나. 내보낸 파일 프로젝트에 저장 및 Git 관리
+
+1.  다운로드한 JSON 파일의 이름을 `my-realm-backup.json`과 같이 식별하기 쉽게 변경합니다.
+2.  프로젝트 내 적절한 위치(예: `keycloak-config/` 디렉토리 생성 후 그 안)에 파일을 저장합니다.
+3.  해당 파일을 Git에 추가하고 커밋합니다.
+
+```bash
+# 예시: keycloak-config 디렉토리를 만들고 파일을 이동
+mkdir keycloak-config
+mv ~/Downloads/realm-export.json keycloak-config/my-realm-backup.json
+
+# Git에 추가
+git add keycloak-config/my-realm-backup.json
+git commit -m "feat: Add keycloak realm backup"
+```
+
+> ✨ **Tip**: Realm 설정을 Git으로 관리하면, Pull Request를 통해 설정 변경 내역을 코드처럼 리뷰할 수 있어 휴먼 에러를 줄이는 데 큰 도움이 됩니다.
+
+### 다. Realm 설정 가져오기 (Import) - 참고
+
+> ⚠️ **주의**: 이 작업은 기존 Realm 설정을 덮어쓸 수 있으니 신중하게 진행해야 합니다. 주로 새로운 환경에 동일한 설정을 복제할 때 사용합니다.
+
+1.  새로운 Realm을 생성하거나, 설정을 덮어쓸 기존 Realm으로 이동합니다.
+2.  **Add realm** 페이지 (Realm 목록 페이지의 **Add Realm** 버튼) 또는 **Realm Settings**에서 Import 기능을 사용할 수 있습니다.
+3.  백업해둔 JSON 파일을 선택하여 가져오기를 진행합니다.

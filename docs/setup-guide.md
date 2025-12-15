@@ -379,3 +379,46 @@ git commit -m "feat: Add keycloak realm backup"
 3.  백업해둔 JSON 파일을 선택하여 가져오기를 진행합니다.
 
 ---
+
+### 라. (심화) 이용약관과 개인정보처리방침 분리하여 동의받기 (권장)
+
+Keycloak의 기본 'Required Action' 기능만으로는 '이용약관'과 '개인정보처리방침'을 각각 별도의 페이지로 분리해서 보여주기 어렵습니다. 현실적인 대안으로, 회원가입 페이지에 두 약관의 동의 체크박스를 각각 만들어 모두 동의해야 가입이 완료되도록 설정할 수 있습니다.
+
+이는 Keycloak의 **User Profile** 기능을 사용하여 코딩 없이 구현할 수 있습니다. (최신 버전 Keycloak 기준)
+
+#### 1. User Profile 기능 활성화
+
+1.  **Keycloak 관리자 콘솔**에서 **Realm Settings** > **User Profile** 탭으로 이동합니다.
+2.  **Enabled** 스위치가 `ON` 상태인지 확인합니다. (최신 버전은 기본 활성화)
+
+#### 2. 약관 동의를 위한 Attribute 생성
+
+**Create attribute** 버튼을 클릭하여 아래와 같이 2개의 속성을 각각 생성합니다.
+
+**속성 1: 이용약관 (`terms_of_service`)**
+-   **Name**: `terms_of_service`
+-   **Display name**: 이용약관 동의
+-   **Enabled**: `ON`
+-   **Required**: `ON`
+
+**속성 2: 개인정보처리방침 (`privacy_policy`)**
+-   **Name**: `privacy_policy`
+-   **Display name**: 개인정보처리방침 동의
+-   **Enabled**: `ON`
+-   **Required**: `ON`
+
+#### 3. 각 Attribute에 대한 Validator 및 Annotation 설정
+
+생성한 각 속성( `terms_of_service`, `privacy_policy`)을 클릭하고, **Validators**와 **Annotations** 탭에서 아래와 같이 설정합니다.
+
+-   **Validators 탭:**
+    -   `required` validator가 `ON`으로 설정되어 있는지 확인합니다.
+
+-   **Annotations 탭:**
+    -   `inputType`: `checkbox`
+    -   `label`: `${termsOfServiceLabel}` (또는 `${privacyPolicyLabel}`)
+        > `label`에 사용된 `${...}` 키는 `messages_ko.properties` 파일에 정의해야 합니다. 예: `termsOfServiceLabel=<strong>(필수)</strong> <a href="/terms" target="_blank">서비스 이용약관</a>에 동의합니다.`
+
+#### 4. 결과
+
+위 설정을 마치면 회원가입 폼 하단에 아래와 같이 체크박스 두 개가 생성되며, 모두 체크해야만 가입 버튼이 활성화됩니다. 각 약관의 상세 내용은 라벨에 링크(`<a>`)를 걸어 팝업이나 새 창으로 띄우는 방식으로 처리합니다.

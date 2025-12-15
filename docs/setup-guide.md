@@ -377,3 +377,44 @@ git commit -m "feat: Add keycloak realm backup"
 1.  새로운 Realm을 생성하거나, 설정을 덮어쓸 기존 Realm으로 이동합니다.
 2.  **Add realm** 페이지 (Realm 목록 페이지의 **Add Realm** 버튼) 또는 **Realm Settings**에서 Import 기능을 사용할 수 있습니다.
 3.  백업해둔 JSON 파일을 선택하여 가져오기를 진행합니다.
+
+---
+
+## 📜 10. keycloak에 약관 동의 내용 추가하기 설정
+
+Keycloak은 사용자가 로그인하기 전 이용약관에 동의하도록 강제하는 기능을 제공합니다. 이는 'Required Actions' 기능을 통해 설정할 수 있습니다. 사용자가 처음 로그인하거나 새로운 약관이 적용되었을 때 약관 동의 페이지를 표시합니다.
+
+### 가. 이용약관 Required Action 활성화
+
+1.  **Keycloak 관리자 콘솔**에 접속하여 설정을 적용할 Realm을 선택합니다.
+2.  왼쪽 메뉴에서 **Authentication**으로 이동합니다.
+3.  **Required Actions** 탭을 선택합니다.
+4.  테이블에서 `Terms and Conditions` 항목을 찾아 `Enabled`와 `Default Action` 체크박스를 모두 활성화합니다.
+    *   **Enabled**: 해당 Realm에서 이용약관 기능을 사용하도록 설정합니다.
+    *   **Default Action**: 새로 가입하는 모든 사용자에게 이용약관 동의 절차를 자동으로 적용합니다.
+
+### 나. 이용약관 내용 커스터마이징 (테마 수정)
+
+기본 이용약관 내용은 Keycloak의 기본 테마에 포함되어 있습니다. 내용을 우리말로 바꾸거나 수정하려면 커스텀 테마 파일을 수정해야 합니다. 약관 내용은 보통 `messages_xx.properties` 파일을 통해 다국어를 지원합니다.
+
+1.  프로젝트의 커스텀 테마 디렉토리로 이동합니다. (`keycloak-themes/custom-theme/login/messages/`)
+2.  `messages_ko.properties` 파일을 열어 아래와 같이 약관 제목과 내용 키-값을 추가하거나 수정합니다.
+
+    ```properties
+    # keycloak-themes/custom-theme/login/messages/messages_ko.properties
+
+    termsTitle=이용약관 동의
+    termsText=<h1>서비스 이용약관</h1><p>본 서비스를 이용해 주셔서 감사합니다. 약관 내용을 충분히 숙지하신 후 동의해 주세요...</p><p>[여기에 전체 약관 내용을 HTML 형식으로 작성합니다]</p>
+    ```
+
+3.  Keycloak 로그인 페이지에서 언어를 '한국어'로 설정하면 위에서 정의한 내용이 표시됩니다. 약관 페이지의 전체적인 HTML 구조를 변경하고 싶다면 `login.ftl` 또는 `info.ftl`과 같은 Freemarker 템플릿 파일을 직접 수정해야 합니다.
+
+### 다. 기존 사용자에게 약관 동의 강제 적용
+
+이미 가입된 사용자에게도 새로운 이용약관 동의를 받아야 할 경우, 각 사용자의 'Required User Actions'에 'Terms and Conditions'를 수동으로 추가해야 합니다.
+
+1.  **Keycloak 관리자 콘솔**에서 **Users** 메뉴로 이동합니다.
+2.  약관 동의를 적용할 사용자를 검색하여 선택합니다.
+3.  **Details** 탭으로 이동하여 **Required User Actions** 드롭다운 메뉴를 찾습니다.
+4.  `Terms and Conditions`를 선택하고 **Add** 버튼을 눌러 추가합니다.
+5.  해당 사용자가 다음에 로그인할 때 이용약관 동의 페이지가 표시됩니다.
